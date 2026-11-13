@@ -20,6 +20,7 @@ public interface LLMClient {
             case "openai" -> new OpenAIClient(model);
             case "anthropic" -> new AnthropicClient(model);
             case "ollama" -> new OllamaClient(model);
+            case "gemini" -> new GeminiClient(model);
             default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
         };
     }
