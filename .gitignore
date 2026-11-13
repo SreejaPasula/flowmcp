@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*$py.class
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+.pytest_cache/
+
+# Java
+target/
+*.class
+*.jar
+
+# Env
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.project
+.classpath
+.settings/
