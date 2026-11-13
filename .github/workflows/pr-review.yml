@@ -6,7 +6,7 @@ on:
 
 jobs:
   review:
-    name: Deep Code Review with Claude
+    name: Deep Code Review
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -19,24 +19,14 @@ jobs:
 
       - name: Gather PR context
         run: |
-          # Code diff
           git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-
-          # Changed file list
           git diff origin/${{ github.base_ref }}...HEAD --name-only > changed_files.txt
-
-          # CONTRIBUTING.md for guideline checking
-          cat CONTRIBUTING.md > contributing.txt
-
-          # LICENSE for license checking
-          cat LICENSE > license.txt
-
           echo "Changed files:"
           cat changed_files.txt
 
-      - name: Deep Review with Claude
+      - name: Deep Review with GitHub Models
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 << 'EOF'
           import urllib.request
@@ -49,11 +39,8 @@ jobs:
           with open("changed_files.txt", "r") as f:
               changed_files = f.read()
 
-          with open("contributing.txt", "r") as f:
+          with open("CONTRIBUTING.md", "r") as f:
               contributing = f.read()
-
-          with open("license.txt", "r") as f:
-              license_text = f.read()
 
           if not diff.strip():
               with open("review.txt", "w") as f:
@@ -65,9 +52,7 @@ jobs:
 
           prompt = f"""You are a strict but fair OSS maintainer reviewing a pull request for **flowmcp** — a simple RAG + MCP + LLM pipeline framework (Python + Java).
 
-This is an open source project. Your job is to thoroughly review this PR and give the maintainer a clear, detailed report so they can decide whether to merge or request changes. **You do not merge — the maintainer always merges manually.**
-
----
+Your job is to thoroughly review this PR and give the maintainer a clear report so they can decide whether to merge or request changes. The maintainer always merges manually — you never merge.
 
 ## Changed files
 {changed_files}
@@ -80,57 +65,48 @@ This is an open source project. Your job is to thoroughly review this PR and giv
 ## CONTRIBUTING.md (project guidelines)
 {contributing}
 
-## LICENSE (MIT)
-{license_text}
-
 ---
 
-Review this PR across ALL of the following dimensions. Be specific — reference file names and line numbers where possible.
+Review across ALL of these dimensions. Be specific — reference file names and line numbers.
 
 ### 1. CORRECTNESS
-- Does the code do what the issue/PR claims?
-- Are there any bugs, logic errors, or off-by-one errors?
-- What happens with empty inputs, None values, large inputs, special characters?
-- Are error cases handled properly?
+- Does the code do what the PR claims?
+- Any bugs, logic errors, or wrong behaviour?
 
 ### 2. EDGE CASES
-- List specific edge cases that are NOT covered
+- Empty inputs, None values, special characters, large inputs
 - Will this break for any realistic input?
 
 ### 3. TESTS
-- Are tests included for the new code?
-- Do the tests actually cover the important cases or just the happy path?
-- Could these tests pass even if the implementation is wrong?
+- Are tests included?
+- Do they cover real cases or just the happy path?
 
 ### 4. CONTRIBUTING.md COMPLIANCE
-- Does the PR follow the project's contribution guidelines?
-- Correct branch naming, commit message style, setup instructions followed?
+- Does the PR follow the project contribution guidelines?
 
-### 5. LICENSE COMPLIANCE
-- Does any new file have the correct license header if required?
-- Does the code introduce any dependency with an incompatible license?
+### 5. LICENSE
+- Any new dependencies with incompatible licenses?
+- Any missing license headers?
 
 ### 6. SECURITY
-- Any hardcoded secrets, API keys, or credentials?
-- Any input that goes directly to a shell command, file path, or eval?
-- Any dependency added — is it trustworthy and well-maintained?
+- Hardcoded secrets or API keys?
+- Any input going directly to shell, file path, or eval?
+- Any suspicious new dependency?
 
 ### 7. CODE QUALITY
-- Is the code consistent with the existing codebase style?
-- Is it simple and readable or unnecessarily complex?
-- Any dead code, unused imports, or leftover debug statements?
+- Consistent with existing codebase style?
+- Any dead code, unused imports, debug statements left in?
 
 ### 8. BREAKING CHANGES
-- Does this change any existing public API or behavior?
-- Will existing users' code break after this merge?
+- Does this break any existing public API or behaviour?
 
 ---
 
 Respond in exactly this format:
 
-## flowmcp PR Review 🔍
+## flowmcp PR Review
 
-**Verdict:** ✅ SAFE TO MERGE / ⚠️ NEEDS CHANGES / ❌ DO NOT MERGE
+**Verdict:** SAFE TO MERGE / NEEDS CHANGES / DO NOT MERGE
 
 **What this PR does:**
 (one clear sentence)
@@ -138,57 +114,57 @@ Respond in exactly this format:
 ---
 
 ### Correctness
-(findings or "✅ No issues found")
+(findings or "No issues found")
 
 ### Edge Cases
-(findings or "✅ All major edge cases handled")
+(findings or "All major edge cases handled")
 
 ### Tests
-(findings or "✅ Tests are adequate")
+(findings or "Tests are adequate")
 
 ### Contributing Guidelines
-(findings or "✅ Follows guidelines")
+(findings or "Follows guidelines")
 
 ### License
-(findings or "✅ No license issues")
+(findings or "No license issues")
 
 ### Security
-(findings or "✅ No security concerns")
+(findings or "No security concerns")
 
 ### Code Quality
-(findings or "✅ Clean and consistent")
+(findings or "Clean and consistent")
 
 ### Breaking Changes
-(findings or "✅ No breaking changes")
+(findings or "No breaking changes")
 
 ---
 
-### Action required
-(If NEEDS CHANGES: bullet list of exact things the contributor must fix before merge.
+### Action Required
+(If NEEDS CHANGES or DO NOT MERGE: exact bullet list of what the contributor must fix.
 If SAFE TO MERGE: "No action needed — maintainer can merge when ready.")
 
 ---
-*This review was generated automatically. Final merge decision is always made by the maintainer.*"""
+*Automated review — final merge decision is always made by the maintainer.*"""
 
           payload = json.dumps({
-              "model": "claude-sonnet-4-5",
+              "model": "gpt-4o-mini",
+              "messages": [{"role": "user", "content": prompt}],
               "max_tokens": 2048,
-              "messages": [{"role": "user", "content": prompt}]
+              "temperature": 0.2
           }).encode()
 
           req = urllib.request.Request(
-              "https://api.anthropic.com/v1/messages",
+              "https://models.inference.ai.azure.com/chat/completions",
               data=payload,
               headers={
                   "Content-Type": "application/json",
-                  "x-api-key": os.environ["ANTHROPIC_API_KEY"],
-                  "anthropic-version": "2023-06-01"
+                  "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"
               }
           )
 
           with urllib.request.urlopen(req) as response:
               result = json.loads(response.read())
-              review = result["content"][0]["text"]
+              review = result["choices"][0]["message"]["content"]
 
           with open("review.txt", "w") as f:
               f.write(review)
