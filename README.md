@@ -69,7 +69,7 @@ String answer = pipeline.ask("What is our refund policy?");
 | OpenAI | ✅ | 🚧 |
 | Anthropic | ✅ | 🚧 |
 | Ollama (local) | ✅ | ✅ |
-| Gemini | 🚧 | 🚧 |
+| Gemini | 🚧 | ✅ |
 
 ✅ = done · 🚧 = contributions welcome
 
