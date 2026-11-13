@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+.pytest_cache/
+
+# Java
+target/
+*.class
+*.jar
+.idea/
+*.iml
+.project
+.classpath
+.settings/

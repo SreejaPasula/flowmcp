@@ -67,7 +67,7 @@ String answer = pipeline.ask("What is our refund policy?");
 | Provider | Python | Java |
 |---|---|---|
 | OpenAI | ✅ | 🚧 |
-| Anthropic | ✅ | 🚧 |
+| Anthropic | ✅ | ✅ |
 | Ollama (local) | ✅ | ✅ |
 | Gemini | 🚧 | 🚧 |
 
