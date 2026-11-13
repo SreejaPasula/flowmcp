@@ -6,7 +6,7 @@ on:
 
 jobs:
   review:
-    name: Auto Review with Claude
+    name: Deep Code Review with Claude
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -17,13 +17,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get PR diff
-        id: diff
+      - name: Gather PR context
         run: |
+          # Code diff
           git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-          echo "Diff size: $(wc -l < pr_diff.txt) lines"
 
-      - name: Review with Claude
+          # Changed file list
+          git diff origin/${{ github.base_ref }}...HEAD --name-only > changed_files.txt
+
+          # CONTRIBUTING.md for guideline checking
+          cat CONTRIBUTING.md > contributing.txt
+
+          # LICENSE for license checking
+          cat LICENSE > license.txt
+
+          echo "Changed files:"
+          cat changed_files.txt
+
+      - name: Deep Review with Claude
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -35,50 +46,133 @@ jobs:
           with open("pr_diff.txt", "r") as f:
               diff = f.read()
 
+          with open("changed_files.txt", "r") as f:
+              changed_files = f.read()
+
+          with open("contributing.txt", "r") as f:
+              contributing = f.read()
+
+          with open("license.txt", "r") as f:
+              license_text = f.read()
+
           if not diff.strip():
-              print("Empty diff, skipping review.")
               with open("review.txt", "w") as f:
                   f.write("No code changes detected in this PR.")
               exit(0)
 
-          # Truncate if too large
-          if len(diff) > 12000:
-              diff = diff[:12000] + "\n\n[diff truncated — showing first 12000 chars]"
+          if len(diff) > 15000:
+              diff = diff[:15000] + "\n\n[diff truncated — showing first 15000 chars]"
 
-          prompt = f"""You are reviewing a pull request for **flowmcp** — a simple RAG + MCP + LLM pipeline framework (Python + Java).
+          prompt = f"""You are a strict but fair OSS maintainer reviewing a pull request for **flowmcp** — a simple RAG + MCP + LLM pipeline framework (Python + Java).
 
-Review the following diff and give clear, actionable feedback.
+This is an open source project. Your job is to thoroughly review this PR and give the maintainer a clear, detailed report so they can decide whether to merge or request changes. **You do not merge — the maintainer always merges manually.**
 
-Check for:
-1. **Correctness** — does the code work as intended? any bugs or edge cases?
-2. **Consistency** — does it follow the existing patterns in the codebase?
-3. **Tests** — are tests included? do they cover the change properly?
-4. **Simplicity** — is the code clean and minimal?
+---
 
-Diff:
+## Changed files
+{changed_files}
+
+## Code Diff
 ```
 {diff}
 ```
 
-Respond in this format:
+## CONTRIBUTING.md (project guidelines)
+{contributing}
 
-## PR Review
+## LICENSE (MIT)
+{license_text}
 
-**Verdict:** APPROVE / REQUEST CHANGES
+---
 
-**Summary:** (one sentence about what this PR does)
+Review this PR across ALL of the following dimensions. Be specific — reference file names and line numbers where possible.
 
-**Findings:**
-(list each issue or observation — be specific, reference line numbers where possible)
+### 1. CORRECTNESS
+- Does the code do what the issue/PR claims?
+- Are there any bugs, logic errors, or off-by-one errors?
+- What happens with empty inputs, None values, large inputs, special characters?
+- Are error cases handled properly?
 
-**What's good:**
-(what was done well)
+### 2. EDGE CASES
+- List specific edge cases that are NOT covered
+- Will this break for any realistic input?
 
-If verdict is APPROVE with no issues, keep it short and positive."""
+### 3. TESTS
+- Are tests included for the new code?
+- Do the tests actually cover the important cases or just the happy path?
+- Could these tests pass even if the implementation is wrong?
+
+### 4. CONTRIBUTING.md COMPLIANCE
+- Does the PR follow the project's contribution guidelines?
+- Correct branch naming, commit message style, setup instructions followed?
+
+### 5. LICENSE COMPLIANCE
+- Does any new file have the correct license header if required?
+- Does the code introduce any dependency with an incompatible license?
+
+### 6. SECURITY
+- Any hardcoded secrets, API keys, or credentials?
+- Any input that goes directly to a shell command, file path, or eval?
+- Any dependency added — is it trustworthy and well-maintained?
+
+### 7. CODE QUALITY
+- Is the code consistent with the existing codebase style?
+- Is it simple and readable or unnecessarily complex?
+- Any dead code, unused imports, or leftover debug statements?
+
+### 8. BREAKING CHANGES
+- Does this change any existing public API or behavior?
+- Will existing users' code break after this merge?
+
+---
+
+Respond in exactly this format:
+
+## flowmcp PR Review 🔍
+
+**Verdict:** ✅ SAFE TO MERGE / ⚠️ NEEDS CHANGES / ❌ DO NOT MERGE
+
+**What this PR does:**
+(one clear sentence)
+
+---
+
+### Correctness
+(findings or "✅ No issues found")
+
+### Edge Cases
+(findings or "✅ All major edge cases handled")
+
+### Tests
+(findings or "✅ Tests are adequate")
+
+### Contributing Guidelines
+(findings or "✅ Follows guidelines")
+
+### License
+(findings or "✅ No license issues")
+
+### Security
+(findings or "✅ No security concerns")
+
+### Code Quality
+(findings or "✅ Clean and consistent")
+
+### Breaking Changes
+(findings or "✅ No breaking changes")
+
+---
+
+### Action required
+(If NEEDS CHANGES: bullet list of exact things the contributor must fix before merge.
+If SAFE TO MERGE: "No action needed — maintainer can merge when ready.")
+
+---
+*This review was generated automatically. Final merge decision is always made by the maintainer.*"""
 
           payload = json.dumps({
               "model": "claude-sonnet-4-5",
-              "max_tokens": 1024,
+              "max_tokens": 2048,
               "messages": [{"role": "user", "content": prompt}]
           }).encode()
 
