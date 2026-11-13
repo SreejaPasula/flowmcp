@@ -1,0 +1,110 @@
+name: PR Review Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    name: Auto Review with Claude
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          echo "Diff size: $(wc -l < pr_diff.txt) lines"
+
+      - name: Review with Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 << 'EOF'
+          import urllib.request
+          import json
+          import os
+
+          with open("pr_diff.txt", "r") as f:
+              diff = f.read()
+
+          if not diff.strip():
+              print("Empty diff, skipping review.")
+              with open("review.txt", "w") as f:
+                  f.write("No code changes detected in this PR.")
+              exit(0)
+
+          # Truncate if too large
+          if len(diff) > 12000:
+              diff = diff[:12000] + "\n\n[diff truncated — showing first 12000 chars]"
+
+          prompt = f"""You are reviewing a pull request for **flowmcp** — a simple RAG + MCP + LLM pipeline framework (Python + Java).
+
+Review the following diff and give clear, actionable feedback.
+
+Check for:
+1. **Correctness** — does the code work as intended? any bugs or edge cases?
+2. **Consistency** — does it follow the existing patterns in the codebase?
+3. **Tests** — are tests included? do they cover the change properly?
+4. **Simplicity** — is the code clean and minimal?
+
+Diff:
+```
+{diff}
+```
+
+Respond in this format:
+
+## PR Review
+
+**Verdict:** APPROVE / REQUEST CHANGES
+
+**Summary:** (one sentence about what this PR does)
+
+**Findings:**
+(list each issue or observation — be specific, reference line numbers where possible)
+
+**What's good:**
+(what was done well)
+
+If verdict is APPROVE with no issues, keep it short and positive."""
+
+          payload = json.dumps({
+              "model": "claude-sonnet-4-5",
+              "max_tokens": 1024,
+              "messages": [{"role": "user", "content": prompt}]
+          }).encode()
+
+          req = urllib.request.Request(
+              "https://api.anthropic.com/v1/messages",
+              data=payload,
+              headers={
+                  "Content-Type": "application/json",
+                  "x-api-key": os.environ["ANTHROPIC_API_KEY"],
+                  "anthropic-version": "2023-06-01"
+              }
+          )
+
+          with urllib.request.urlopen(req) as response:
+              result = json.loads(response.read())
+              review = result["content"][0]["text"]
+
+          with open("review.txt", "w") as f:
+              f.write(review)
+
+          print(review)
+          EOF
+
+      - name: Post review comment on PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REVIEW=$(cat review.txt)
+          gh pr comment ${{ github.event.pull_request.number }} --body "$REVIEW"
