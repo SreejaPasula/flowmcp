@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install pytest -e .
         working-directory: python
       - name: Run tests
         run: pytest tests/
