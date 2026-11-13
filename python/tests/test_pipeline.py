@@ -114,3 +114,85 @@ def test_gemini_client_missing_dependency():
     with patch.dict("sys.modules", {"google": None, "google.genai": None, "google.generativeai": None}):
         with pytest.raises(ImportError, match="Install google-genai"):
             GeminiClient("gemini-pro").complete("Hello")
+def test_rag_load_pdf_mocked(tmp_path):
+    from flowmcp.rag.loader import RAG
+
+    pdf_file = tmp_path / "document.pdf"
+    pdf_file.write_bytes(b"%PDF-1.4 dummy")
+
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "Refund policy allows 30 days for returns."
+    mock_reader = MagicMock()
+    mock_reader.is_encrypted = False
+    mock_reader.pages = [mock_page]
+
+    mock_pypdf = MagicMock()
+    mock_pypdf.PdfReader.return_value = mock_reader
+
+    with patch.dict("sys.modules", {"pypdf": mock_pypdf}):
+        rag = RAG(str(tmp_path))
+        chunks = rag.retrieve("refund")
+        assert len(chunks) >= 1
+        assert "refund" in chunks[0].lower()
+
+
+def test_rag_load_pdf_real_sample(tmp_path):
+    pytest.importorskip("pypdf")
+    from flowmcp.rag.loader import RAG
+
+    pdf_file = tmp_path / "policy.pdf"
+    pdf_data = b"""%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj
+4 0 obj << /Length 44 >> stream
+BT /F1 12 Tf 72 712 Td (Refund policy: 30 days) Tj ET
+endstream endobj
+5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000244 00000 n 
+0000000338 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+416
+%%EOF
+"""
+    pdf_file.write_bytes(pdf_data)
+
+    rag = RAG(str(tmp_path))
+    chunks = rag.retrieve("refund")
+    assert len(chunks) >= 1
+    assert "Refund" in chunks[0]
+
+
+def test_rag_load_pdf_missing_dependency(tmp_path):
+    from flowmcp.rag.loader import RAG
+
+    pdf_file = tmp_path / "doc.pdf"
+    pdf_file.write_bytes(b"%PDF-1.4")
+
+    with patch.dict("sys.modules", {"pypdf": None}):
+        with pytest.raises(ImportError, match="Install pypdf to read PDF files"):
+            RAG(str(pdf_file))
+
+
+def test_rag_load_pdf_encrypted(tmp_path):
+    from flowmcp.rag.loader import RAG
+
+    pdf_file = tmp_path / "locked.pdf"
+    pdf_file.write_bytes(b"%PDF-1.4 locked")
+
+    mock_reader = MagicMock()
+    mock_reader.is_encrypted = True
+
+    mock_pypdf = MagicMock()
+    mock_pypdf.PdfReader.return_value = mock_reader
+
+    with patch.dict("sys.modules", {"pypdf": mock_pypdf}):
+        with pytest.raises(ValueError, match="password-protected"):
+            RAG(str(pdf_file))
