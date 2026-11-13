@@ -53,3 +53,59 @@ def test_pipeline_ask_without_rag():
     answer = pipeline.ask("What is the answer?")
 
     assert answer == "42"
+
+
+def test_gemini_client_from_string():
+    mock_genai = MagicMock()
+    with patch.dict("sys.modules", {"google.genai": mock_genai}):
+        from flowmcp.llm.base import LLM
+        from flowmcp.llm.gemini import GeminiClient
+
+        client = LLM.from_string("gemini/gemini-2.0-flash")
+        assert isinstance(client, GeminiClient)
+        assert client.model == "gemini-2.0-flash"
+
+
+def test_gemini_client_complete():
+    from flowmcp.llm.gemini import GeminiClient
+
+    mock_genai = MagicMock()
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.text = "Hello from Gemini"
+    mock_client.models.generate_content.return_value = mock_response
+    mock_genai.Client.return_value = mock_client
+
+    with patch.dict("sys.modules", {"google.genai": mock_genai}):
+        client = GeminiClient("gemini-2.0-flash", api_key="dummy_key")
+        result = client.complete("Hello")
+        assert result == "Hello from Gemini"
+        mock_client.models.generate_content.assert_called_once_with(
+            model="gemini-2.0-flash", contents="Hello"
+        )
+
+
+def test_gemini_client_legacy_fallback():
+    from flowmcp.llm.gemini import GeminiClient
+
+    mock_legacy = MagicMock()
+    mock_model = MagicMock()
+    mock_response = MagicMock()
+    mock_response.text = "Hello from Legacy Gemini"
+    mock_model.generate_content.return_value = mock_response
+    mock_legacy.GenerativeModel.return_value = mock_model
+
+    with patch.dict("sys.modules", {"google.genai": None, "google.generativeai": mock_legacy}):
+        client = GeminiClient("gemini-pro", api_key="dummy_key")
+        result = client.complete("Hello")
+        assert result == "Hello from Legacy Gemini"
+        mock_model.generate_content.assert_called_once_with("Hello")
+
+
+def test_gemini_client_missing_dependency():
+    from flowmcp.llm.gemini import GeminiClient
+
+    with patch.dict("sys.modules", {"google.genai": None, "google.generativeai": None}):
+        with pytest.raises(ImportError, match="Install google-genai"):
+            GeminiClient("gemini-pro")
+

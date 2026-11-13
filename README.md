@@ -25,8 +25,9 @@ LangChain does this but needs hundreds of lines of setup. **flowmcp does it in 5
 
 ```bash
 pip install flowmcp
-pip install flowmcp[openai]   # for OpenAI
+pip install flowmcp[openai]    # for OpenAI
 pip install flowmcp[anthropic] # for Anthropic
+pip install flowmcp[gemini]    # for Gemini
 ```
 
 ```python
@@ -70,7 +71,7 @@ String answer = pipeline.ask("What is our refund policy?");
 | OpenAI | ✅ | 🚧 |
 | Anthropic | ✅ | 🚧 |
 | Ollama (local) | ✅ | ✅ |
-| Gemini | 🚧 | 🚧 |
+| Gemini | ✅ | 🚧 |
 
 ✅ = done · 🚧 = contributions welcome
 
