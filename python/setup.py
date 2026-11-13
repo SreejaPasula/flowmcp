@@ -4,7 +4,7 @@ setup(
     name="flowmcp",
     version="0.1.0",
     description="Simple RAG + MCP + LLM pipeline framework — a clean alternative to LangChain",
-    long_description=open("../../README.md").read(),
+    long_description=open("../README.md").read(),
     long_description_content_type="text/markdown",
     author="SreejaPasula",
     url="https://github.com/SreejaPasula/flowmcp",
