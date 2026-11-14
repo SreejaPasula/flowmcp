@@ -1,0 +1,51 @@
+name: DCO Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  dco:
+    name: DCO Sign-off
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Signed-off-by on all commits
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+
+          MISSING=""
+          while IFS= read -r hash; do
+            MESSAGE=$(git log -1 --format="%B" "$hash")
+            AUTHOR=$(git log -1 --format="%an <%ae>" "$hash")
+            SHORT=$(git log -1 --format="%h %s" "$hash")
+
+            if ! echo "$MESSAGE" | grep -q "^Signed-off-by:"; then
+              MISSING="$MISSING\n  ✗ $SHORT  (by $AUTHOR)"
+            fi
+          done < <(git log --format="%H" "$BASE..$HEAD")
+
+          if [ -n "$MISSING" ]; then
+            echo ""
+            echo "❌ DCO check failed — the following commits are missing a Signed-off-by line:"
+            echo -e "$MISSING"
+            echo ""
+            echo "To fix, amend the commit(s) with:"
+            echo "  git commit --amend -s --no-edit"
+            echo "  git push --force-with-lease"
+            echo ""
+            echo "For multiple commits:"
+            echo "  git rebase --signoff HEAD~N   # N = number of commits"
+            echo "  git push --force-with-lease"
+            echo ""
+            echo "Full instructions: https://github.com/SreejaPasula/flowmcp/blob/main/DCO.md"
+            exit 1
+          fi
+
+          echo "✅ DCO check passed — all commits are signed off."

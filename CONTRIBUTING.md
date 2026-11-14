@@ -10,14 +10,15 @@ Thank you for your interest in contributing! This document is your single refere
 2. [Getting Started](#getting-started)
 3. [How to Contribute](#how-to-contribute)
 4. [Signing the CLA](#signing-the-cla)
-5. [Issue Templates](#issue-templates)
+5. [DCO Sign-off](#dco-sign-off)
+6. [Issue Templates](#issue-templates)
    - [Bug Report](#-bug-report-template)
    - [Feature Request](#-feature-request-template)
-6. [Pull Request Template](#pull-request-template)
-7. [Policies](#policies)
-8. [Code Style](#code-style)
-9. [Good First Issues](#good-first-issues)
-10. [Questions](#questions)
+7. [Pull Request Template](#pull-request-template)
+8. [Policies](#policies)
+9. [Code Style](#code-style)
+10. [Good First Issues](#good-first-issues)
+11. [Questions](#questions)
 
 ---
 
@@ -58,6 +59,7 @@ mvn verify
 5. **Open a PR** — fill in the PR template below exactly as shown
 6. **Respond to review feedback** — the automated review bot and maintainers will leave comments
 7. **Sign the CLA** — the CLA bot will prompt you automatically on your first PR (see [Signing the CLA](#signing-the-cla) below)
+8. **DCO sign-off** — every commit must include a `Signed-off-by` line (see [DCO Sign-off](#dco-sign-off) below)
 
 ---
 
@@ -100,6 +102,60 @@ If you opened a PR before the CLA check was set up, a maintainer will comment `r
 | You posted the comment but check is still red | Wait 30 seconds and refresh — the bot may still be processing |
 | You signed on one PR but another PR still shows unsigned | Comment `recheck` on the other PR to sync |
 | You disagree with the CLA terms | Email sreejap974@gmail.com before contributing |
+
+---
+
+## DCO Sign-off
+
+In addition to the CLA, every **commit** in your PR must carry a `Signed-off-by` line. This is the same mechanism used by the **Linux kernel, Kubernetes, and GitLab**.
+
+It certifies that the code is your original work and you have the right to submit it under the project's licence. Read the full [Developer Certificate of Origin](DCO.md).
+
+### How to sign each commit
+
+Use the `-s` flag when committing:
+
+```bash
+git commit -s -m "feat: add Gemini provider for Python"
+```
+
+This automatically appends to your commit message:
+
+```
+Signed-off-by: Your Name <your@email.com>
+```
+
+Git uses your configured `user.name` and `user.email`. Make sure they are set:
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+```
+
+### Forgot to sign a commit?
+
+**Last commit only:**
+
+```bash
+git commit --amend -s --no-edit
+git push --force-with-lease
+```
+
+**Multiple commits in your branch:**
+
+```bash
+git rebase --signoff HEAD~N   # replace N with the number of commits in your PR
+git push --force-with-lease
+```
+
+### DCO check is failing — what to do
+
+| Problem | Fix |
+|---------|-----|
+| `missing Signed-off-by` on last commit | `git commit --amend -s --no-edit && git push --force-with-lease` |
+| Multiple unsigned commits | `git rebase --signoff HEAD~N && git push --force-with-lease` |
+| Wrong name or email in sign-off | Fix git config, then re-sign: `git commit --amend -s --no-edit` |
+| Bot says pass but GitHub still shows fail | Re-push any commit to re-trigger the check |
 
 ---
 
