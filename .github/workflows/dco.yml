@@ -25,6 +25,12 @@ jobs:
             MESSAGE=$(git log -1 --format="%B" "$hash")
             AUTHOR=$(git log -1 --format="%an <%ae>" "$hash")
             SHORT=$(git log -1 --format="%h %s" "$hash")
+            PARENTS=$(git log -1 --format="%P" "$hash" | wc -w)
+
+            # Skip merge commits (they have 2+ parents)
+            if [ "$PARENTS" -gt 1 ]; then
+              continue
+            fi
 
             if ! echo "$MESSAGE" | grep -q "^Signed-off-by:"; then
               MISSING="$MISSING\n  ✗ $SHORT  (by $AUTHOR)"
