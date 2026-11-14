@@ -31,7 +31,7 @@ jobs:
           path-to-signatures: signatures/cla.json
           path-to-document: https://github.com/SreejaPasula/flowmcp/blob/main/CLA.md
           branch: cla-signatures
-          allowlist: dependabot[bot],github-actions[bot]
+          allowlist: dependabot[bot],github-actions[bot],SreejaPasula
           message-comment-not-signed: |
             👋 Hi @${{ github.event.pull_request.user.login }}, thank you for your contribution!
 
