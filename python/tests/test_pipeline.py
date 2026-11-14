@@ -56,14 +56,12 @@ def test_pipeline_ask_without_rag():
 
 
 def test_gemini_client_from_string():
-    mock_genai = MagicMock()
-    with patch.dict("sys.modules", {"google.genai": mock_genai}):
-        from flowmcp.llm.base import LLM
-        from flowmcp.llm.gemini import GeminiClient
+    from flowmcp.llm.base import LLM
+    from flowmcp.llm.gemini import GeminiClient
 
-        client = LLM.from_string("gemini/gemini-2.0-flash")
-        assert isinstance(client, GeminiClient)
-        assert client.model == "gemini-2.0-flash"
+    client = LLM.from_string("gemini/gemini-2.0-flash")
+    assert isinstance(client, GeminiClient)
+    assert client.model == "gemini-2.0-flash"
 
 
 def test_gemini_client_complete():
@@ -107,5 +105,5 @@ def test_gemini_client_missing_dependency():
 
     with patch.dict("sys.modules", {"google.genai": None, "google.generativeai": None}):
         with pytest.raises(ImportError, match="Install google-genai"):
-            GeminiClient("gemini-pro")
+            GeminiClient("gemini-pro").complete("test")
 

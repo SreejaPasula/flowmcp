@@ -12,35 +12,25 @@ class GeminiClient(LLMBase):
     def __init__(self, model: str, api_key: Optional[str] = None):
         self.model = model
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        self._use_new_sdk = True
 
+    def complete(self, prompt: str) -> str:
         try:
-            # Prefer modern Google GenAI SDK (google-genai)
-            from google import genai
+            import google.genai as genai
             kwargs = {}
             if self.api_key:
                 kwargs["api_key"] = self.api_key
-            self.client = genai.Client(**kwargs)
+            client = genai.Client(**kwargs)
+            response = client.models.generate_content(model=self.model, contents=prompt)
+            return response.text
         except ImportError:
-            try:
-                # Fallback to legacy google-generativeai if installed
-                import google.generativeai as genai_legacy
-                if self.api_key:
-                    genai_legacy.configure(api_key=self.api_key)
-                self.client = genai_legacy.GenerativeModel(model)
-                self._use_new_sdk = False
-            except ImportError:
-                raise ImportError(
-                    "Install google-genai: pip install google-genai"
-                )
+            pass
 
-    def complete(self, prompt: str) -> str:
-        if self._use_new_sdk:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-            )
+        try:
+            import google.generativeai as genai_legacy
+            if self.api_key:
+                genai_legacy.configure(api_key=self.api_key)
+            model = genai_legacy.GenerativeModel(self.model)
+            response = model.generate_content(prompt)
             return response.text
-        else:
-            response = self.client.generate_content(prompt)
-            return response.text
+        except ImportError:
+            raise ImportError("Install google-genai: pip install google-genai")
