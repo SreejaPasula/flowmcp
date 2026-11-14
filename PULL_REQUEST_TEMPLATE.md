@@ -14,7 +14,7 @@ Fixes #
 ---
 
 ## Checklist
-- [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [ ] I have read [CONTRIBUTING.md](CONTRIBUTING.md)
 - [ ] My code follows the existing style of the project
 - [ ] I have added tests that cover my changes
 - [ ] All existing tests pass (`pytest tests/` or `mvn verify`)
