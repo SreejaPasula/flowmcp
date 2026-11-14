@@ -9,14 +9,15 @@ Thank you for your interest in contributing! This document is your single refere
 1. [Code of Conduct](#code-of-conduct)
 2. [Getting Started](#getting-started)
 3. [How to Contribute](#how-to-contribute)
-4. [Issue Templates](#issue-templates)
+4. [Signing the CLA](#signing-the-cla)
+5. [Issue Templates](#issue-templates)
    - [Bug Report](#-bug-report-template)
    - [Feature Request](#-feature-request-template)
-5. [Pull Request Template](#pull-request-template)
-6. [Policies](#policies)
-7. [Code Style](#code-style)
-8. [Good First Issues](#good-first-issues)
-9. [Questions](#questions)
+6. [Pull Request Template](#pull-request-template)
+7. [Policies](#policies)
+8. [Code Style](#code-style)
+9. [Good First Issues](#good-first-issues)
+10. [Questions](#questions)
 
 ---
 
@@ -56,7 +57,49 @@ mvn verify
 4. **Make your change** — add tests, update docs if needed
 5. **Open a PR** — fill in the PR template below exactly as shown
 6. **Respond to review feedback** — the automated review bot and maintainers will leave comments
-7. **Sign the CLA** — the CLA bot will prompt you on your first PR (see [CLA.md](CLA.md))
+7. **Sign the CLA** — the CLA bot will prompt you automatically on your first PR (see [Signing the CLA](#signing-the-cla) below)
+
+---
+
+## Signing the CLA
+
+All contributors must sign the **Contributor License Agreement (CLA)** before their first PR can be merged. You only need to sign once — your signature covers all future contributions.
+
+### What is the CLA?
+
+The CLA confirms that:
+- The code is your original work and you have the right to submit it
+- You grant the flowmcp project a license to use your contribution under MIT
+- Read the full agreement: [CLA.md](CLA.md)
+
+### How to sign
+
+When you open a PR for the first time, the CLA bot will automatically post a comment like this on your PR:
+
+> *"Thank you for your submission. Please sign our Contributor License Agreement before we can accept your contribution."*
+
+**To sign, post a comment on your PR with exactly this text:**
+
+```
+I have read the CLA Document and I hereby sign the CLA
+```
+
+> **Important:** Copy the text exactly as shown above — the bot does an exact match.
+
+Once you post that comment, the CLA check will turn green within seconds. You only need to do this **once** — all your future PRs will pass the CLA check automatically.
+
+### Already have a PR open?
+
+If you opened a PR before the CLA check was set up, a maintainer will comment `recheck` on your PR to trigger the bot. You will then see the sign instruction appear — just post the comment above and you are done.
+
+### CLA check is failing — what to do
+
+| Problem | Fix |
+|---------|-----|
+| Bot hasn't commented yet | Ask the maintainer to comment `recheck` on your PR |
+| You posted the comment but check is still red | Wait 30 seconds and refresh — the bot may still be processing |
+| You signed on one PR but another PR still shows unsigned | Comment `recheck` on the other PR to sync |
+| You disagree with the CLA terms | Email sreejap974@gmail.com before contributing |
 
 ---
 
