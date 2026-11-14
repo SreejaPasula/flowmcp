@@ -11,17 +11,16 @@ This agreement follows the standard [Individual Contributor License Agreement](h
 
 ---
 
-## How flowmcp enforces the CLA
+## How flowmcp enforces contributor agreements
 
-flowmcp uses a **comment-based CLA** enforced automatically by the CLA Assistant GitHub Action on every pull request.
+flowmcp uses **two complementary mechanisms** on every pull request:
 
-To sign, post this exact comment on your PR:
+| Mechanism | What it is | How to comply |
+|-----------|-----------|---------------|
+| **Comment-based CLA** | One-time sign-off per contributor stored in `signatures/cla.json` | Post `I have read the CLA Document and I hereby sign the CLA` as a PR comment — once only |
+| **DCO Sign-off** | Per-commit certification embedded in git history | Use `git commit -s` on every commit |
 
-```
-I have read the CLA Document and I hereby sign the CLA
-```
-
-You only need to sign once. All your future PRs are covered. See [CONTRIBUTING.md](CONTRIBUTING.md#signing-the-cla) for full instructions.
+Both checks must pass before a PR can be merged.
 
 ---
 
@@ -69,9 +68,9 @@ git commit -s -m "feat: add Gemini provider"
 
 **Who uses it:** Linux Kernel, Kubernetes, CNCF projects, GitLab, Node.js
 
-**Why some projects prefer it:** No external service, no bot, no blocking — just a line in the commit. It is simpler but gives the project less legal protection than a CLA.
+**Why some projects prefer it:** No external service, no bot, no blocking — just a line in the commit. It is simpler but gives the project less legal protection than a CLA alone.
 
-**flowmcp does not use DCO** — we use an ICLA via the CLA bot because it provides stronger IP clarity for a framework that LLM providers and enterprises may integrate with.
+**flowmcp uses DCO** alongside the comment-based CLA. Every commit must carry a `Signed-off-by` line. See [DCO.md](DCO.md) for full instructions.
 
 ---
 
@@ -103,7 +102,7 @@ git commit -s -m "feat: add Gemini provider"
 
 ---
 
-### 5. No CLA (permissive projects)
+### 6. No CLA (permissive projects)
 
 **What it is:** Some projects, particularly those under very permissive licences like MIT or BSD, skip the CLA entirely and rely on the licence itself to govern contributions.
 
@@ -119,11 +118,11 @@ git commit -s -m "feat: add Gemini provider"
 |------|----------------------|----------------|---------|
 | Individual CLA (ICLA) | Low — sign once | High | Apache, Google |
 | Corporate CLA (CCLA) | Low for employees, legal sign-off needed once | High | Apache, Microsoft |
-| DCO | Very low — one flag per commit | Medium | Linux, Kubernetes |
+| DCO | Very low — one flag per commit | Medium | Linux, Kubernetes, **flowmcp** |
 | Click-through CLA | Low — one click on a website | High | SAP, JetBrains |
-| Comment-based CLA | Very low — one comment on PR | Medium-High | flowmcp, GitHub-native projects |
+| Comment-based CLA | Very low — one comment on PR | Medium-High | **flowmcp**, GitHub-native projects |
 | No CLA | None | Low | FastAPI, requests |
 
 ---
 
-*This CLA is enforced automatically via the CLA Assistant GitHub Action on every pull request.*
+*flowmcp enforces both the CLA (via CLA Assistant GitHub Action) and DCO (via commit sign-off check) on every pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for signing instructions.*

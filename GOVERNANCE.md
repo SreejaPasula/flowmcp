@@ -29,7 +29,7 @@ Anyone who opens an issue, submits a PR, or participates in discussions is a con
 
 Responsibilities:
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- Sign the [CLA](CLA.md) before their first PR is merged
+- Sign the [CLA](CLA.md) before their first PR is merged and use `git commit -s` (DCO sign-off) on every commit — see [CONTRIBUTING.md](CONTRIBUTING.md#signing-the-cla)
 - Respond to review feedback within a reasonable time (2 weeks)
 - Write tests and documentation for their changes
 
