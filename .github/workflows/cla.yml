@@ -1,0 +1,48 @@
+name: CLA Assistant
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla_assistant:
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'issue_comment' &&
+       github.event.comment.body == 'recheck') ||
+      github.event_name == 'pull_request_target'
+    steps:
+      - name: CLA Assistant
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path-to-signatures: signatures/cla.json
+          path-to-document: https://github.com/SreejaPasula/flowmcp/blob/main/CLA.md
+          branch: cla-signatures
+          allowlist: dependabot[bot],github-actions[bot]
+          message-comment-not-signed: |
+            👋 Hi @${{ github.event.pull_request.user.login }}, thank you for your contribution!
+
+            Before this PR can be merged, please sign our **Contributor License Agreement**.
+
+            📄 Read the CLA here: [CLA.md](https://github.com/SreejaPasula/flowmcp/blob/main/CLA.md)
+
+            To sign, post a comment with **exactly** this text:
+
+            ```
+            I have read the CLA Document and I hereby sign the CLA
+            ```
+
+            Once signed, the check will update automatically.
+          message-comment-after-cla-signed: |
+            ✅ Thank you for signing the CLA! The maintainer will review your PR shortly.
