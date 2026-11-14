@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Bug Report or Feature Request
+    url: https://github.com/SreejaPasula/flowmcp/blob/main/CONTRIBUTING.md#issue-templates
+    about: Read CONTRIBUTING.md to find the Bug Report and Feature Request templates, then open a blank issue using the correct template.
+  - name: Ask a Question
+    url: https://github.com/SreejaPasula/flowmcp/discussions
+    about: Use GitHub Discussions for general questions and ideas.
+  - name: Security Vulnerability
+    url: https://github.com/SreejaPasula/flowmcp/blob/main/SECURITY.md
+    about: Do NOT open a public issue. Follow the private reporting process in SECURITY.md.
