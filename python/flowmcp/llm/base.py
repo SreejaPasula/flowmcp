@@ -35,5 +35,8 @@ class LLM:
         elif provider == "ollama":
             from .ollama import OllamaClient
             return OllamaClient(model)
+        elif provider == "gemini":
+            from .gemini import GeminiClient
+            return GeminiClient(model)
         else:
-            raise ValueError(f"Unsupported provider '{provider}'. Supported: openai, anthropic, ollama")
+            raise ValueError(f"Unsupported provider '{provider}'. Supported: openai, anthropic, ollama, gemini")

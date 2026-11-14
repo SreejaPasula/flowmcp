@@ -11,6 +11,14 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
+*$py.class
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+.pytest_cache/
 
 # Java
 target/
@@ -29,3 +37,8 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+.idea/
+*.iml
+.project
+.classpath
+.settings/
