@@ -3,6 +3,10 @@ from typing import List, Union
 from .chunker import chunk_text
 from .retriever import Retriever
 
+DOC_EXTENSIONS = (
+    ".txt", ".md", ".pdf", ".json", ".csv", ".rst", ".html", ".xml", ".yaml", ".yml"
+)
+
 
 class RAG:
     """
@@ -14,16 +18,34 @@ class RAG:
     """
 
     def __init__(self, source: Union[str, List[str]]):
-        sources = [source] if isinstance(source, str) else source
+        sources = [source] if isinstance(source, (str, bytes, os.PathLike)) else source
         self.retriever = Retriever()
 
         for src in sources:
-            if os.path.isdir(src):
-                self._load_directory(src)
-            elif os.path.isfile(src):
-                self._load_file(src)
+            src_str = str(src).strip()
+            if os.path.isdir(src_str):
+                self._load_directory(src_str)
+            elif os.path.isfile(src_str):
+                self._load_file(src_str)
+            elif self._is_path_like(src_str):
+                raise FileNotFoundError(
+                    f"'{src}' does not exist. Please provide a valid file or directory path."
+                )
             else:
-                self._load_text(src)
+                self._load_text(src_str)
+
+    @staticmethod
+    def _is_path_like(src_str: str) -> bool:
+        """Determines if a non-existent source was intended as a filesystem path."""
+        if not src_str:
+            return False
+        if src_str.startswith((".", "/", "~")) or "/" in src_str or "\\" in src_str:
+            return True
+        if src_str.lower().endswith(DOC_EXTENSIONS):
+            return True
+        if not any(c.isspace() for c in src_str):
+            return True
+        return False
 
     def _load_directory(self, path: str):
         for root, _, files in os.walk(path):
