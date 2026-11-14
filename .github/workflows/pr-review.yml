@@ -3,12 +3,16 @@ name: PR Review Bot
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to review"
+        required: true
 
 jobs:
   review:
     name: Deep Code Review
     runs-on: ubuntu-latest
-    # Skip Dependabot PRs — they are auto-generated dependency updates, not human code
     if: github.actor != 'dependabot[bot]'
     permissions:
       pull-requests: write
@@ -19,10 +23,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gather PR context
+      - name: Set PR number
+        id: pr
         run: |
-          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-          git diff origin/${{ github.base_ref }}...HEAD --name-only > changed_files.txt
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "number=${{ github.event.inputs.pr_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout PR branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr checkout ${{ steps.pr.outputs.number }}
+
+      - name: Gather PR context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BASE=$(gh pr view ${{ steps.pr.outputs.number }} --json baseRefName --jq '.baseRefName')
+          git diff origin/$BASE...HEAD > pr_diff.txt
+          git diff origin/$BASE...HEAD --name-only > changed_files.txt
+          echo "Changed files:"
+          cat changed_files.txt
 
       - name: Review with GitHub Models
         env:
@@ -33,4 +57,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat review.txt)"
+          gh pr comment ${{ steps.pr.outputs.number }} --body "$(cat review.txt)"
