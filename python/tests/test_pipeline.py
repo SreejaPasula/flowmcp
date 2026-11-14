@@ -196,3 +196,34 @@ def test_rag_load_pdf_encrypted(tmp_path):
     with patch.dict("sys.modules", {"pypdf": mock_pypdf}):
         with pytest.raises(ValueError, match="password-protected"):
             RAG(str(pdf_file))
+
+
+def test_rag_missing_docs_path_raises_error():
+    from flowmcp.rag.loader import RAG
+    from pathlib import Path
+
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        RAG("./missing_directory_12345")
+
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        RAG(Path("./missing_directory_12345"))
+
+
+def test_rag_raw_text_loads_successfully():
+    from flowmcp.rag.loader import RAG
+
+    rag = RAG("Our refund policy allows returns within 30 days of purchase.")
+    results = rag.retrieve("refund")
+    assert len(results) >= 1
+    assert "refund policy" in results[0]
+
+    # Empty string should not raise FileNotFoundError
+    empty_rag = RAG("")
+    assert empty_rag.retrieve("anything") == []
+
+
+def test_pipeline_missing_docs_path_raises_error():
+    mock_llm = MagicMock()
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        Pipeline(llm=mock_llm, docs="./missing_directory_12345")
+
