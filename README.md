@@ -28,6 +28,7 @@ pip install flowmcp
 pip install flowmcp[openai]    # for OpenAI
 pip install flowmcp[anthropic] # for Anthropic
 pip install flowmcp[gemini]    # for Gemini
+pip install flowmcp[pdf]       # for PDF document loading
 ```
 
 ```python

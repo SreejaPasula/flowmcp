@@ -31,9 +31,37 @@ class RAG:
                 if file.endswith((".txt", ".md", ".pdf")):
                     self._load_file(os.path.join(root, file))
 
+    def _read_pdf(self, path: str) -> str:
+        """
+        Extracts plain text from digital PDF files using pypdf.
+        Handles edge cases:
+          - Password-protected/encrypted PDFs (raises clear ValueError)
+          - Whitespace/blank pages (filtered out)
+          - Scanned/image-only PDFs with no text layer (returns empty string)
+        """
+        try:
+            from pypdf import PdfReader
+        except ImportError:
+            raise ImportError("Install pypdf to read PDF files: pip install pypdf")
+
+        reader = PdfReader(path)
+        if reader.is_encrypted:
+            raise ValueError(f"Cannot read '{path}': PDF is password-protected.")
+
+        text_parts = []
+        for page in reader.pages:
+            extracted = page.extract_text()
+            if extracted and extracted.strip():
+                text_parts.append(extracted.strip())
+
+        return "\n\n".join(text_parts)
+
     def _load_file(self, path: str):
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
-            text = f.read()
+        if path.endswith(".pdf"):
+            text = self._read_pdf(path)
+        else:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                text = f.read()
         chunks = chunk_text(text)
         self.retriever.add(chunks)
 
