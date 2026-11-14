@@ -16,9 +16,11 @@ jobs:
   cla_assistant:
     runs-on: ubuntu-latest
     if: >
-      (github.event_name == 'issue_comment' &&
-       github.event.comment.body == 'recheck') ||
-      github.event_name == 'pull_request_target'
+      github.actor != 'dependabot[bot]' && (
+        (github.event_name == 'issue_comment' &&
+         github.event.comment.body == 'recheck') ||
+        github.event_name == 'pull_request_target'
+      )
     steps:
       - name: CLA Assistant
         uses: contributor-assistant/github-action@v2.6.1
