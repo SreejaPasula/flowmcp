@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "flowmcp"
 version = "0.1.0"
 description = "Simple RAG + MCP + LLM pipeline framework — a clean alternative to LangChain"
-license = { file = "../LICENSE" }
+license = { text = "MIT" }
 authors = [{ name = "SreejaPasula", email = "sreejap974@gmail.com" }]
 requires-python = ">=3.9"
 keywords = ["rag", "mcp", "llm", "ai", "langchain-alternative", "pipeline"]
