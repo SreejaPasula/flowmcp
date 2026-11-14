@@ -1,0 +1,19 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 60%
+        threshold: 5%
+    patch:
+      default:
+        target: 50%
+        threshold: 10%
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true
+
+ignore:
+  - "python/tests/**"
+  - "java/**"

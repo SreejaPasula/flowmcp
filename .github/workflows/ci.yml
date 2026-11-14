@@ -16,11 +16,17 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install pytest -e .
+        run: pip install pytest pytest-cov -e .
         working-directory: python
-      - name: Run tests
-        run: pytest tests/
+      - name: Run tests with coverage
+        run: pytest tests/ --cov=flowmcp --cov-report=xml --cov-report=term-missing
         working-directory: python
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: python/coverage.xml
+          flags: python
+          fail_ci_if_error: false
 
   java:
     name: Java Build
