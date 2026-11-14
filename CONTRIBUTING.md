@@ -113,38 +113,57 @@ It certifies that the code is your original work and you have the right to submi
 
 ### How to sign each commit
 
-Use the `-s` flag when committing:
+Add the `-s` flag every time you commit. Here are real examples based on flowmcp contributions:
 
 ```bash
-git commit -s -m "feat: add Gemini provider for Python"
+# Adding a new LLM provider
+git commit -s -m "feat: add Gemini provider for Python LLM module"
+
+# Fixing a bug
+git commit -s -m "fix: handle empty query string in RAG retriever"
+
+# Writing tests
+git commit -s -m "test: add edge cases for OllamaClient JSON escaping"
+
+# Updating docs
+git commit -s -m "docs: add streaming usage example to README"
 ```
 
-This automatically appends to your commit message:
+Each of these automatically appends a line like this to the commit message:
 
 ```
-Signed-off-by: Your Name <your@email.com>
+feat: add Gemini provider for Python LLM module
+
+Signed-off-by: Alex Rivera <alex.rivera@example.com>
 ```
 
-Git uses your configured `user.name` and `user.email`. Make sure they are set:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your@email.com"
-```
+> Git uses your `user.name` and `user.email` to fill in the sign-off. Make sure they match how you want to appear in the project history:
+>
+> ```bash
+> git config --global user.name "Alex Rivera"
+> git config --global user.email "alex.rivera@example.com"
+> ```
 
 ### Forgot to sign a commit?
 
-**Last commit only:**
+**You added one commit and forgot `-s`:**
 
 ```bash
+# You ran: git commit -m "fix: correct chunker overlap calculation"
+# Fix it like this:
 git commit --amend -s --no-edit
 git push --force-with-lease
 ```
 
-**Multiple commits in your branch:**
+**You have several commits in the branch, none of them signed:**
 
 ```bash
-git rebase --signoff HEAD~N   # replace N with the number of commits in your PR
+# For example, a branch with 3 commits:
+# feat: scaffold GeminiClient for Java
+# feat: implement GeminiClient.complete()
+# test: add GeminiClient unit tests
+
+git rebase --signoff HEAD~3
 git push --force-with-lease
 ```
 
@@ -152,10 +171,10 @@ git push --force-with-lease
 
 | Problem | Fix |
 |---------|-----|
-| `missing Signed-off-by` on last commit | `git commit --amend -s --no-edit && git push --force-with-lease` |
-| Multiple unsigned commits | `git rebase --signoff HEAD~N && git push --force-with-lease` |
-| Wrong name or email in sign-off | Fix git config, then re-sign: `git commit --amend -s --no-edit` |
-| Bot says pass but GitHub still shows fail | Re-push any commit to re-trigger the check |
+| One unsigned commit at the tip | `git commit --amend -s --no-edit && git push --force-with-lease` |
+| Several unsigned commits | `git rebase --signoff HEAD~N` where N = number of commits in your PR |
+| Sign-off has the wrong name or email | Update git config, then `git commit --amend -s --no-edit` |
+| Check still red after fixing | Push an empty amend to re-trigger: `git commit --amend --no-edit && git push --force-with-lease` |
 
 ---
 
