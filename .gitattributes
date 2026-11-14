@@ -1,0 +1,25 @@
+# Normalize line endings to LF on all platforms
+* text=auto eol=lf
+
+# Python
+*.py text diff=python
+*.pyi text
+
+# Java
+*.java text diff=java
+
+# Markdown
+*.md text diff=markdown
+
+# YAML / JSON / TOML
+*.yml text
+*.yaml text
+*.json text
+*.toml text
+
+# Binary files — do not modify
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.jar binary

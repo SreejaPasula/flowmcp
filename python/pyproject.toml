@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "flowmcp"
+version = "0.1.0"
+description = "Simple RAG + MCP + LLM pipeline framework — a clean alternative to LangChain"
+readme = "../README.md"
+license = { file = "../LICENSE" }
+authors = [{ name = "SreejaPasula", email = "sreejap974@gmail.com" }]
+requires-python = ">=3.9"
+keywords = ["rag", "mcp", "llm", "ai", "langchain-alternative", "pipeline"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []
+
+[project.optional-dependencies]
+openai = ["openai>=1.0.0"]
+anthropic = ["anthropic>=0.20.0"]
+gemini = ["google-generativeai>=0.5.0"]
+pdf = ["pypdf>=4.0.0"]
+all = ["openai>=1.0.0", "anthropic>=0.20.0", "google-generativeai>=0.5.0", "pypdf>=4.0.0"]
+dev = ["pytest>=7.0", "pytest-asyncio>=0.21"]
+
+[project.urls]
+Homepage = "https://github.com/SreejaPasula/flowmcp"
+Issues = "https://github.com/SreejaPasula/flowmcp/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use flowmcp in your research, please cite it as below."
+type: software
+title: flowmcp
+abstract: "A simple, modular framework for building RAG + MCP + LLM pipelines — a clean alternative to LangChain. Supports Python and Java."
+authors:
+  - family-names: Pasula
+    given-names: Sreeja
+    email: sreejap974@gmail.com
+    orcid: ""
+repository-code: "https://github.com/SreejaPasula/flowmcp"
+url: "https://github.com/SreejaPasula/flowmcp"
+license: MIT
+version: 0.1.0
+date-released: "2026-11-13"
+keywords:
+  - RAG
+  - MCP
+  - LLM
+  - AI
+  - pipeline
+  - langchain-alternative
+  - python
+  - java
