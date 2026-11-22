@@ -1,12 +1,20 @@
-
 import os
 from typing import List, Optional, Union
 
-from .chunker import chunk_text
+from .chunker import _validate_chunk_options, chunk_text
 from .retriever import DEFAULT_EMBEDDING_MODEL, EmbeddingFunction, Retriever
 
 DOC_EXTENSIONS = (
-    ".txt", ".md", ".pdf", ".json", ".csv", ".rst", ".html", ".xml", ".yaml", ".yml"
+    ".txt",
+    ".md",
+    ".pdf",
+    ".json",
+    ".csv",
+    ".rst",
+    ".html",
+    ".xml",
+    ".yaml",
+    ".yml",
 )
 
 
@@ -25,7 +33,12 @@ class RAG:
         embedding_model: str = DEFAULT_EMBEDDING_MODEL,
         embedder: Optional[EmbeddingFunction] = None,
         chunk_strategy: str = "fixed",
+        chunk_size: int = 500,
+        chunk_overlap: int = 50,
     ):
+        _validate_chunk_options(chunk_size, chunk_overlap, chunk_strategy)
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
         self.chunk_strategy = chunk_strategy
 
         sources = [source] if isinstance(source, (str, bytes, os.PathLike)) else source
@@ -100,7 +113,9 @@ class RAG:
         try:
             import httpx
         except ImportError:
-            raise ImportError("Install httpx to load documents from a URL: pip install httpx")
+            raise ImportError(
+                "Install httpx to load documents from a URL: pip install httpx"
+            )
 
         try:
             from bs4 import BeautifulSoup
@@ -120,7 +135,12 @@ class RAG:
 
     def _load_url(self, url: str):
         text = self._fetch_url_text(url)
-        chunks = chunk_text(text, strategy=self.chunk_strategy)
+        chunks = chunk_text(
+            text,
+            chunk_size=self.chunk_size,
+            overlap=self.chunk_overlap,
+            strategy=self.chunk_strategy,
+        )
         self.retriever.add(chunks)
 
     def _load_file(self, path: str):
@@ -130,11 +150,21 @@ class RAG:
             with open(path, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
 
-        chunks = chunk_text(text, strategy=self.chunk_strategy)
+        chunks = chunk_text(
+            text,
+            chunk_size=self.chunk_size,
+            overlap=self.chunk_overlap,
+            strategy=self.chunk_strategy,
+        )
         self.retriever.add(chunks)
 
     def _load_text(self, text: str):
-        chunks = chunk_text(text, strategy=self.chunk_strategy)
+        chunks = chunk_text(
+            text,
+            chunk_size=self.chunk_size,
+            overlap=self.chunk_overlap,
+            strategy=self.chunk_strategy,
+        )
         self.retriever.add(chunks)
 
     def retrieve(self, query: str, top_k: int = 3) -> List[str]:

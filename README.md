@@ -80,6 +80,24 @@ when setting the template. An invalid replacement leaves the previous template
 intact. If MCP tools return results, these are appended after the rendered
 prompt. Without a template, existing prompt construction is unchanged.
 
+### Configure document chunks
+
+```python
+from flowmcp import RAG
+
+rag = RAG("./docs", chunk_size=500, chunk_overlap=50)
+# Disable overlap explicitly:
+rag = RAG("./docs", chunk_size=200, chunk_overlap=0)
+```
+
+Fixed chunks count whitespace-separated **words**, not characters or tokens.
+The defaults preserve the existing 500-word chunks with 50-word overlap.
+Choose a positive integer `chunk_size` and an integer `chunk_overlap` with
+`0 <= chunk_overlap < chunk_size`; invalid settings fail before documents are
+read or embeddings are loaded. Settings apply to text, files, directories,
+and URLs. With `chunk_strategy="markdown"`, heading sections remain intact;
+size and overlap apply only to the fallback when no headings are present.
+
 ### Java
 
 ```xml
