@@ -2,7 +2,6 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from flowmcp.llm import LLM, OpenAICompatClient
 
 
@@ -133,6 +132,7 @@ def test_openai_compat_acomplete_and_usage():
     mock_response.usage.completion_tokens = 6
     mock_response.usage.total_tokens = 10
     mock_async_client.chat.completions.create = AsyncMock(return_value=mock_response)
+    mock_async_client.close = AsyncMock()
     mock_openai.AsyncOpenAI.return_value = mock_async_client
 
     with patch.dict("sys.modules", {"openai": mock_openai}):

@@ -58,9 +58,12 @@ class OpenAICompatClient(LLMBase):
             raise ImportError("Install openai: pip install openai")
 
         client = AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
-        response = await client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        self._record_usage(response)
-        return response.choices[0].message.content
+        try:
+            response = await client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            self._record_usage(response)
+            return response.choices[0].message.content
+        finally:
+            await client.close()

@@ -312,6 +312,7 @@ async def test_openai_acomplete():
     mock_async_openai = MagicMock()
     mock_response = MagicMock()
     mock_response.choices[0].message.content = "Hello from AsyncOpenAI"
+    mock_async_openai.return_value.close = AsyncMock()
     mock_async_openai.return_value.chat.completions.create = AsyncMock(return_value=mock_response)
 
     with patch.dict("sys.modules", {"openai": mock_openai}):
@@ -331,6 +332,7 @@ async def test_anthropic_acomplete():
     mock_async_client = MagicMock()
     mock_response = MagicMock()
     mock_response.content[0].text = "Hello from AsyncAnthropic"
+    mock_async_client.return_value.close = AsyncMock()
     mock_async_client.return_value.messages.create = AsyncMock(return_value=mock_response)
 
     with patch.dict("sys.modules", {"anthropic": mock_anthropic}):

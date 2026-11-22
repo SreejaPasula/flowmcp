@@ -6,6 +6,7 @@ class AnthropicClient(LLMBase):
         self.model = model
         try:
             import anthropic
+
             self.client = anthropic.Anthropic()
         except ImportError:
             raise ImportError("Install anthropic: pip install anthropic")
@@ -14,13 +15,14 @@ class AnthropicClient(LLMBase):
         message = self.client.messages.create(
             model=self.model,
             max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": prompt}],
         )
         if message.usage:
             self.last_usage = {
                 "prompt_tokens": message.usage.input_tokens,
                 "completion_tokens": message.usage.output_tokens,
-                "total_tokens": message.usage.input_tokens + message.usage.output_tokens,
+                "total_tokens": message.usage.input_tokens
+                + message.usage.output_tokens,
             }
         return message.content[0].text
 
@@ -30,9 +32,12 @@ class AnthropicClient(LLMBase):
         except ImportError:
             raise ImportError("Install anthropic: pip install anthropic")
         client = anthropic.AsyncAnthropic()
-        message = await client.messages.create(
-            model=self.model,
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return message.content[0].text
+        try:
+            message = await client.messages.create(
+                model=self.model,
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return message.content[0].text
+        finally:
+            await client.close()

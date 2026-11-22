@@ -6,14 +6,14 @@ class OpenAIClient(LLMBase):
         self.model = model
         try:
             from openai import OpenAI
+
             self.client = OpenAI()
         except ImportError:
             raise ImportError("Install openai: pip install openai")
 
     def complete(self, prompt: str) -> str:
         response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}]
+            model=self.model, messages=[{"role": "user", "content": prompt}]
         )
         if response.usage:
             self.last_usage = {
@@ -29,8 +29,10 @@ class OpenAIClient(LLMBase):
         except ImportError:
             raise ImportError("Install openai: pip install openai")
         client = AsyncOpenAI()
-        response = await client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
+        try:
+            response = await client.chat.completions.create(
+                model=self.model, messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
+        finally:
+            await client.close()
