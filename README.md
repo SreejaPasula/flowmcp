@@ -2,6 +2,7 @@
 
 **The simple way to build RAG + MCP + LLM pipelines. A clean alternative to LangChain.**
 
+[![PyPI](https://img.shields.io/pypi/v/flowmcp)](https://pypi.org/project/flowmcp/)
 [![CI](https://github.com/SreejaPasula/flowmcp/actions/workflows/ci.yml/badge.svg)](https://github.com/SreejaPasula/flowmcp/actions)
 [![codecov](https://codecov.io/gh/SreejaPasula/flowmcp/branch/main/graph/badge.svg)](https://codecov.io/gh/SreejaPasula/flowmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
