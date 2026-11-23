@@ -80,6 +80,22 @@ when setting the template. An invalid replacement leaves the previous template
 intact. If MCP tools return results, these are appended after the rendered
 prompt. Without a template, existing prompt construction is unchanged.
 
+### Automatic retries
+
+LLM calls that fail with a transient error (HTTP 429, 503, 504, a connection
+error, or a timeout) are retried with exponential backoff. Auth errors and
+other 4xx responses are raised immediately.
+
+```python
+from flowmcp import LLM
+
+llm = LLM.from_string("openai/gpt-4o-mini")  # 3 retries, 1s base delay
+llm = LLM.from_string("openai/gpt-4o-mini", max_retries=5, retry_delay=0.5)
+```
+
+The wait before retry `n` (starting at 0) is `retry_delay * 2**n` seconds.
+Set `max_retries=0` to turn retries off.
+
 ### Java
 
 ```xml
