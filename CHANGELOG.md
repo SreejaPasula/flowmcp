@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - PDF document support in RAG loader (pypdf)
+- PDF document support in Java RAG loader (Apache PDFBox)
 - Gemini provider for Python and Java
 - OpenAI client for Java
 - Anthropic client for Java

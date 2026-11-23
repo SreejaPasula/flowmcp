@@ -1,5 +1,8 @@
 package io.flowmcp.rag;
 
+import io.flowmcp.rag.loader.DocumentLoader;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -9,41 +12,27 @@ import java.util.List;
 public class RAGPipeline {
 
     private final Retriever retriever;
+    private final DocumentLoader documentLoader;
 
     public RAGPipeline(List<String> sources) {
         this.retriever = new Retriever();
+        this.documentLoader = new DocumentLoader();
         for (String source : sources) {
-            load(source);
+            ingest(source);
         }
     }
 
-    private void load(String source) {
-        java.io.File file = new java.io.File(source);
-        if (file.isDirectory()) {
-            loadDirectory(file);
-        } else if (file.isFile()) {
-            loadFile(file);
-        } else {
-            retriever.add(Chunker.chunk(source));
-        }
-    }
-
-    private void loadDirectory(java.io.File dir) {
-        java.io.File[] files = dir.listFiles();
-        if (files == null) return;
-        for (java.io.File file : files) {
-            if (file.isFile() && (file.getName().endsWith(".txt") || file.getName().endsWith(".md"))) {
-                loadFile(file);
-            }
-        }
-    }
-
-    private void loadFile(java.io.File file) {
+    private void ingest(String source) {
+        List<String> documents;
         try {
-            String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
-            retriever.add(Chunker.chunk(content));
-        } catch (Exception e) {
-            System.err.println("[flowmcp] Warning: Could not load file " + file.getName() + ": " + e.getMessage());
+            documents = documentLoader.load(source);
+        } catch (IOException e) {
+            System.err.println("[flowmcp] Warning: Could not load source " + source + ": " + e.getMessage());
+            return;
+        }
+
+        for (String document : documents) {
+            retriever.add(Chunker.chunk(document));
         }
     }
 
