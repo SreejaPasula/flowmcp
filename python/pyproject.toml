@@ -9,6 +9,7 @@ description = "Simple RAG + MCP + LLM pipeline framework — a clean alternative
 license = { text = "MIT" }
 authors = [{ name = "SreejaPasula", email = "sreejap974@gmail.com" }]
 requires-python = ">=3.9"
+readme = "README.md"
 keywords = ["rag", "mcp", "llm", "ai", "langchain-alternative", "pipeline"]
 classifiers = [
     "Programming Language :: Python :: 3",
