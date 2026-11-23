@@ -5,6 +5,7 @@ import io.flowmcp.rag.loader.DocumentType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 /**
@@ -20,6 +21,6 @@ public class PlainTextReader implements DocumentReader {
 
     @Override
     public String read(File file) throws IOException {
-        return Files.readString(file.toPath());
+        return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
     }
 }
